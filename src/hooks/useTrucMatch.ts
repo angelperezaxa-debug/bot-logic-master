@@ -1485,7 +1485,9 @@ export function useTrucMatch(options: UseTrucMatchOptions = {}) {
       consultAdviceRef.current.set(consultKey, "neutral");
       consultInFlightRef.current.add(consultKey);
       scheduleConsultTimer(() => {
-        sayRef.current?.(botPlayer, "a-tu");
+        if (!asEspasesPlayedFirstTrick(match.round)) {
+          sayRef.current?.(botPlayer, "a-tu");
+        }
         scheduleConsultTimer(() => {
           const hand = match.round.hands[botPlayer] ?? [];
           const acts = legalActions(match, botPlayer).filter(
