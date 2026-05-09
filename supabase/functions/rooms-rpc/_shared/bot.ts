@@ -364,7 +364,11 @@ function botDecideInner(
       const partnerWinsMust =
         !!tableLeaderMust && teamOf(tableLeaderMust.player) === myTeamMust;
       const allFourPlayedExceptMe = curTrickMust!.cards.length === 3;
-      if (!(partnerWinsMust && allFourPlayedExceptMe)) {
+      // Excepció: si el company guanya amb un 3, no defererim la decisió
+      // — el bot pot superar el 3 per assegurar la baza si li convé.
+      const partnerWinsWithThreeMust =
+        partnerWinsMust && tableLeaderMust!.card.rank === 3;
+      if (!(partnerWinsMust && allFourPlayedExceptMe && !partnerWinsWithThreeMust)) {
         const playActsMust = actions.filter(
           (a) => a.type === "play-card",
         ) as Extract<Action, { type: "play-card" }>[];
