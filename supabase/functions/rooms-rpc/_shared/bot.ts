@@ -2503,7 +2503,13 @@ function choosePlayCard(
       );
       const partnerWinsTable =
         tableBestPlayer !== null && teamOf(tableBestPlayer.player) === myTeam;
-      if (trick.cards.length === 3 && partnerWinsTable) {
+      // Excepció: si el company guanya amb un 3, no forcem la més baixa
+      // — el bot pot superar el 3 amb una carta millor si li convé.
+      if (
+        trick.cards.length === 3 &&
+        partnerWinsTable &&
+        tableBestPlayer!.card.rank !== 3
+      ) {
         return { type: "play-card", cardId: lowest.id };
       }
       const winners = sorted.filter((c) => cardStrength(c) > tableBest);
