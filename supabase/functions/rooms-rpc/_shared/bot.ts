@@ -2432,7 +2432,11 @@ function choosePlayCard(
       null as { player: PlayerId; card: Card } | null,
     );
     if (tableLeader && teamOf(tableLeader.player) === teamOf(player)) {
-      return { type: "play-card", cardId: lowest.id };
+      // Excepció: si el company guanya amb un 3, NO forcem la més baixa;
+      // el bot pot legítimament superar el 3 amb una carta més forta.
+      if (tableLeader.card.rank !== 3) {
+        return { type: "play-card", cardId: lowest.id };
+      }
     }
     // Rival guanya la mesa: si tinc alguna carta que la supere, juga
     // SEMPRE la més baixa de les que guanyen. Si no en tinc cap però en
