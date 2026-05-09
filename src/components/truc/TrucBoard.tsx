@@ -2310,7 +2310,7 @@ export function TrucBoard(props: TrucBoardProps) {
             className="flex flex-col items-center gap-1 shrink-0 relative"
             style={{ zIndex: TRUC_Z_INDEX.chatBubble }}
           >
-            <div className="relative scale-90 origin-bottom-left">
+            <div className="relative">
               <PlayerSeat player={HUMAN} match={match} position="bottom" name={nameBottom} isPendingResponder={isPendingResponder(HUMAN)} presence={presenceFor(HUMAN)} presenceLastSeen={presenceLastSeenFor(HUMAN)} />
               {messages.find((m) => m.player === HUMAN) && (
                 <ChatBubble
