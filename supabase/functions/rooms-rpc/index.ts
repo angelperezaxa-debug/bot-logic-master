@@ -856,6 +856,11 @@ async function decideOnlineBotAction(
       if (phrase === "no-tinc-res") {
         phrase = "a-tu";
       }
+      // Prohibició: si en la primera baza ja s'ha jugat l'As d'espases,
+      // cap bot pot dir "A tu!". El peu-bot calla en aqueix cas.
+      if (phrase === "a-tu" && asEspasesPlayedFirstTrick(state.round)) {
+        return null;
+      }
       return scheduleBotFlow(intents, {
         id: flowId,
         actor,
