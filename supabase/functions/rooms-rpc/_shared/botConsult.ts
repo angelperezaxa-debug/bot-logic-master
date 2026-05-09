@@ -4,7 +4,7 @@
 
 import type { MatchState, PlayerId } from "./types.ts";
 import { partnerOf, teamOf } from "./types.ts";
-import { cardStrength, playerTotalEnvit, SUITS, RANKS } from "./deck.ts";
+import { cardStrength, playerTotalEnvit, asEspasesPlayedFirstTrick, SUITS, RANKS } from "./deck.ts";
 import type { ChatPhraseId } from "./phrases.ts";
 import type { BotTuning } from "./profileAdaptation.ts";
 import { NEUTRAL_TUNING } from "./profileAdaptation.ts";

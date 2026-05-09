@@ -1,6 +1,6 @@
 import type { MatchState, PlayerId } from "./types";
 import { partnerOf, teamOf } from "./types";
-import { cardStrength, playerTotalEnvit, SUITS, RANKS } from "./deck";
+import { cardStrength, playerTotalEnvit, asEspasesPlayedFirstTrick, SUITS, RANKS } from "./deck";
 import type { ChatPhraseId } from "./phrases";
 import type { BotTuning } from "./profileAdaptation";
 import { NEUTRAL_TUNING } from "./profileAdaptation";
