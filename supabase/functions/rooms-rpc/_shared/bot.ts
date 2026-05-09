@@ -2212,50 +2212,6 @@ function choosePlayCard(
     }
   }
 
-  // ---- REGLA PRINCIPAL: 2n de la parella + 3r a tirar en la 1a baza ----
-  // Si soc el 2n del meu equip a tirar (3r jugador en la baza) en la 1a
-  // baza, i el meu company (que ha jugat el 2n) NO ha tirat ni un 3 ni
-  // una carta top, OBLIGATÒRIAMENT he de tirar una carta top per
-  // guanyar la baza si en tinc alguna que guanye la millor de la mesa;
-  // si no en tinc cap top que guanye, OBLIGATÒRIAMENT he de tirar un 3
-  // que guanye. Si cap carta meua guanya, ja hauré tirat la més baixa
-  // per la regla principal anterior.
-  if (r.tricks.length === 1 && trick.cards.length === 2) {
-    const myTeam2P = teamOf(player);
-    const partnerCard2P = trick.cards.find(
-      (tc) => teamOf(tc.player) === myTeam2P && tc.player !== player && !tc.covered,
-    );
-    if (partnerCard2P) {
-      const isTopCard2P = (c: Card) =>
-        (c.rank === 7 && (c.suit === "oros" || c.suit === "espases")) ||
-        (c.rank === 1 && (c.suit === "bastos" || c.suit === "espases"));
-      const partnerPlayedThreeOrTop =
-        partnerCard2P.card.rank === 3 || isTopCard2P(partnerCard2P.card);
-      if (!partnerPlayedThreeOrTop) {
-        const tableBest2P = trick.cards.reduce(
-          (mx, tc) => Math.max(mx, cardStrength(tc.card)),
-          -1,
-        );
-        const winningTops2P = cards
-          .filter((c) => isTopCard2P(c) && cardStrength(c) > tableBest2P)
-          .sort((a, b) => cardStrength(a) - cardStrength(b));
-        if (winningTops2P.length > 0) {
-          const pick = winningTops2P[0]!;
-          const matchAct = playActions.find((a) => a.cardId === pick.id);
-          if (matchAct) return matchAct;
-        }
-        const winningThrees2P = cards
-          .filter((c) => c.rank === 3 && cardStrength(c) > tableBest2P)
-          .sort((a, b) => cardStrength(a) - cardStrength(b));
-        if (winningThrees2P.length > 0) {
-          const pick = winningThrees2P[0]!;
-          const matchAct = playActions.find((a) => a.cardId === pick.id);
-          if (matchAct) return matchAct;
-        }
-      }
-    }
-  }
-
   // ---- Regla: primer de la pareja a tirar amb cap carta ≥ 3 ----
   // Si el meu company encara no ha jugat en aquesta baza i totes les
   // meues cartes són estrictament menors que un 3 (cap 3, cap top
