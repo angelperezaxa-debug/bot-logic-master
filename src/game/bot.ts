@@ -2241,6 +2241,37 @@ function choosePlayCard(
     }
   }
 
+  // ---- REGLA PRINCIPAL: 2n de la parella en la 2a baza, equip ja ha
+  // guanyat la 1a baza. Si no em queda ni cap 3 ni cap carta top,
+  // OBLIGATÒRIAMENT he de tirar la meua carta més alta sempre que
+  // siga estrictament major que la del meu company. Si la més alta
+  // no supera la del company, no apliquem aquesta regla.
+  if (r.tricks.length === 2 && trick.cards.length >= 1) {
+    const myTeam2T = teamOf(player);
+    const firstTrick = r.tricks[0]!;
+    const teamWonFirst =
+      firstTrick.winner !== undefined && teamOf(firstTrick.winner) === myTeam2T;
+    if (teamWonFirst) {
+      const partnerCard2T = trick.cards.find(
+        (tc) => teamOf(tc.player) === myTeam2T && tc.player !== player && !tc.covered,
+      );
+      if (partnerCard2T) {
+        const isTopCard2T = (c: Card) =>
+          (c.rank === 7 && (c.suit === "oros" || c.suit === "espases")) ||
+          (c.rank === 1 && (c.suit === "bastos" || c.suit === "espases"));
+        const hasThreeOrTop = cards.some(
+          (c) => c.rank === 3 || isTopCard2T(c),
+        );
+        if (!hasThreeOrTop) {
+          if (cardStrength(highest) > cardStrength(partnerCard2T.card)) {
+            const matchHigh2T = playActions.find((a) => a.cardId === highest.id);
+            if (matchHigh2T) return matchHigh2T;
+          }
+        }
+      }
+    }
+  }
+
   // ---- Regla: primer de la pareja a tirar amb cap carta ≥ 3 ----
   // Si el meu company encara no ha jugat en aquesta baza i totes les
   // meues cartes són estrictament menors que un 3 (cap 3, cap top
