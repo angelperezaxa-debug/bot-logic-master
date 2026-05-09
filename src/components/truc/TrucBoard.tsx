@@ -2320,7 +2320,7 @@ export function TrucBoard(props: TrucBoardProps) {
                 />
               )}
               {envitShoutByPlayer?.[HUMAN] && (
-                <div className="absolute top-[-17px] left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <div className="absolute top-[-17px] left-1/2 -translate-x-1/2 whitespace-nowrap" style={{ zIndex: TRUC_Z_INDEX.shout }}>
                   <div className="relative inline-block">
                     <ShoutBadge
                       what={envitShoutByPlayer[HUMAN] as ShoutKind}
@@ -2337,7 +2337,7 @@ export function TrucBoard(props: TrucBoardProps) {
                 </div>
               )}
               {lastShoutByPlayer[HUMAN] && (
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap" style={{ zIndex: TRUC_Z_INDEX.shout }}>
                   <div className="relative inline-block">
                     <ShoutBadge
                       what={lastShoutByPlayer[HUMAN] as ShoutKind}
