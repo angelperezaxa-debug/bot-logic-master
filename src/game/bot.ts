@@ -2117,6 +2117,31 @@ function choosePlayCard(
   const lowest = sorted[0]!;
   const highest = sorted[sorted.length - 1]!;
 
+  // ---- REGLA PRINCIPAL (màxima prioritat): si soc l'ÚLTIM (4t) jugador
+  // a tirar en la 1a baza, tinc l'OBLIGACIÓ absoluta de guanyar-la si
+  // puc. Tira la carta MÉS BAIXA que supere la millor carta de la mesa.
+  // Si cap carta meua guanya, prefereix deixar-la PARDA empatant amb la
+  // mateixa força que la millor del rival; si tampoc puc empardar, tira
+  // la més baixa. Aquesta regla té precedència sobre qualsevol altra.
+  if (r.tricks.length === 1 && trick.cards.length === 3) {
+    const tableBestStrFT = trick.cards.reduce(
+      (mx, tc) => Math.max(mx, cardStrength(tc.card)),
+      -1,
+    );
+    const winnersFT = sorted.filter((c) => cardStrength(c) > tableBestStrFT);
+    if (winnersFT.length > 0) {
+      const matchWinFT = playActions.find((a) => a.cardId === winnersFT[0]!.id);
+      if (matchWinFT) return matchWinFT;
+    }
+    const tiersFT = sorted.filter((c) => cardStrength(c) === tableBestStrFT);
+    if (tiersFT.length > 0) {
+      const matchTieFT = playActions.find((a) => a.cardId === tiersFT[0]!.id);
+      if (matchTieFT) return matchTieFT;
+    }
+    const matchLowFT = playActions.find((a) => a.cardId === lowest.id);
+    if (matchLowFT) return matchLowFT;
+  }
+
   // ---- REGLA PRINCIPAL (sempre): si cap de les meues cartes pot
   // GUANYAR (estrictament > ) la millor carta ja tirada en aquesta
   // baza, tire OBLIGATÒRIAMENT la més baixa. Aquesta regla té
