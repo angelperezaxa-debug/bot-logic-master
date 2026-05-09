@@ -364,7 +364,11 @@ function botDecideInner(
       const partnerWinsMust =
         !!tableLeaderMust && teamOf(tableLeaderMust.player) === myTeamMust;
       const allFourPlayedExceptMe = curTrickMust!.cards.length === 3;
-      if (!(partnerWinsMust && allFourPlayedExceptMe)) {
+      // Excepció: si el company guanya amb un 3, no defererim la decisió
+      // — el bot pot superar el 3 per assegurar la baza si li convé.
+      const partnerWinsWithThreeMust =
+        partnerWinsMust && tableLeaderMust!.card.rank === 3;
+      if (!(partnerWinsMust && allFourPlayedExceptMe && !partnerWinsWithThreeMust)) {
         const playActsMust = actions.filter(
           (a) => a.type === "play-card",
         ) as Extract<Action, { type: "play-card" }>[];
@@ -2184,7 +2188,11 @@ function choosePlayCard(
           teamOf(tc.player) !== myTeamLast &&
           cardStrength(tc.card) === tableBestStrLast,
       );
-      if (!rivalTies) {
+      // Excepció: si el company guanya amb un 3, el bot NO té prohibit
+      // jugar una carta que supere la del company. En eixe cas, eixim
+      // d'aquesta regla i deixem que la lògica posterior decidisca.
+      const partnerWinsWithThree = tableLeader.card.rank === 3;
+      if (!rivalTies && !partnerWinsWithThree) {
         const matchLowLast = playActions.find((a) => a.cardId === lowest.id);
         if (matchLowLast) return matchLowLast;
       }
@@ -2428,7 +2436,11 @@ function choosePlayCard(
       null as { player: PlayerId; card: Card } | null,
     );
     if (tableLeader && teamOf(tableLeader.player) === teamOf(player)) {
-      return { type: "play-card", cardId: lowest.id };
+      // Excepció: si el company guanya amb un 3, NO forcem la més baixa;
+      // el bot pot legítimament superar el 3 amb una carta més forta.
+      if (tableLeader.card.rank !== 3) {
+        return { type: "play-card", cardId: lowest.id };
+      }
     }
     // Rival guanya la mesa: si tinc alguna carta que la supere, juga
     // SEMPRE la més baixa de les que guanyen. Si no en tinc cap però en
@@ -2495,7 +2507,13 @@ function choosePlayCard(
       );
       const partnerWinsTable =
         tableBestPlayer !== null && teamOf(tableBestPlayer.player) === myTeam;
-      if (trick.cards.length === 3 && partnerWinsTable) {
+      // Excepció: si el company guanya amb un 3, no forcem la més baixa
+      // — el bot pot superar el 3 amb una carta millor si li convé.
+      if (
+        trick.cards.length === 3 &&
+        partnerWinsTable &&
+        tableBestPlayer!.card.rank !== 3
+      ) {
         return { type: "play-card", cardId: lowest.id };
       }
       const winners = sorted.filter((c) => cardStrength(c) > tableBest);
@@ -2680,8 +2698,10 @@ function choosePlayCard(
       const partnerWinsTable =
         tableBestPlayer !== null && teamOf(tableBestPlayer.player) === teamOf(player);
 
-      if (partnerWinsTable) {
+      if (partnerWinsTable && tableBestPlayer!.card.rank !== 3) {
         // El company ja guanya: no cal cremar res. Tira la més baixa.
+        // Excepció: si guanya amb un 3, deixem que la lògica posterior
+        // valore si superar-lo amb una carta més forta.
         return { type: "play-card", cardId: lowest.id };
       }
 
