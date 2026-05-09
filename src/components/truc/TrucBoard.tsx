@@ -2375,7 +2375,7 @@ export function TrucBoard(props: TrucBoardProps) {
                 {turnSecondsLeft}s
               </div>
             )}
-            <div className="flex justify-center gap-1.5 min-w-0 w-full" style={{ transform: "translateX(-20px)" }} data-deck-anchor={HUMAN}>
+            <div className="flex justify-center gap-1.5 min-w-0 w-full" style={{ transform: "translateX(-10px)" }} data-deck-anchor={HUMAN}>
             {myHand.length === 0 ? (
               <div className="text-muted-foreground text-sm py-4">{t("match.waiting_deal")}</div>
             ) : (
