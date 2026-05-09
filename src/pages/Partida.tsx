@@ -420,6 +420,15 @@ function PartidaClient() {
             answer = "a-tu";
           }
         }
+        // Prohibició: si en la primera baza ja s'ha jugat l'As d'espases,
+        // cap bot pot dir "A tu!". Substituïm per "No tinc res".
+        if (answer === "a-tu") {
+          const firstTrick = r.tricks[0];
+          const asEspasesOnTable = !!firstTrick && firstTrick.cards.some(
+            (tc) => tc.card.rank === 1 && tc.card.suit === "espases",
+          );
+          if (asEspasesOnTable) answer = "no-tinc-res";
+        }
         say(PARTNER_PID, answer);
       }, 1100);
     }
