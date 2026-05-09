@@ -21,7 +21,7 @@ import {
   shouldFoldFirstTrickAsTu,
   type PartnerAdvice,
 } from "./_shared/botConsult.ts";
-import { cardStrength, playerTotalEnvit } from "./_shared/deck.ts";
+import { cardStrength, playerTotalEnvit, asEspasesPlayedFirstTrick } from "./_shared/deck.ts";
 import type { ChatPhraseId } from "./_shared/phrases.ts";
 import { nextPlayer, partnerOf, teamOf } from "./_shared/types.ts";
 import type { Action, MatchState, PlayerId } from "./_shared/types.ts";
@@ -856,6 +856,11 @@ async function decideOnlineBotAction(
       if (phrase === "no-tinc-res") {
         phrase = "a-tu";
       }
+      // Prohibició: si en la primera baza ja s'ha jugat l'As d'espases,
+      // cap bot pot dir "A tu!". El peu-bot calla en aqueix cas.
+      if (phrase === "a-tu" && asEspasesPlayedFirstTrick(state.round)) {
+        return null;
+      }
       return scheduleBotFlow(intents, {
         id: flowId,
         actor,
@@ -1028,8 +1033,12 @@ async function decideOnlineBotAction(
     isPlayCardTurn(state, actor) &&
     shouldFoldFirstTrickAsTu(state, actor)
   ) {
-    await insertBotChat(roomId, actor, "a-tu");
-    recordBotChat(intents, actor, "a-tu");
+    // Prohibició: si en la primera baza ja s'ha jugat l'As d'espases,
+    // el bot tira la carta baixa però no diu "A tu!".
+    if (!asEspasesPlayedFirstTrick(state.round)) {
+      await insertBotChat(roomId, actor, "a-tu");
+      recordBotChat(intents, actor, "a-tu");
+    }
     const hand = state.round.hands[actor] ?? [];
     const playActs = legalActions(state, actor).filter(
       (a) => a.type === "play-card",

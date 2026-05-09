@@ -144,6 +144,22 @@ export function playerEnvitBreakdown(
   return { ...result, playedIds };
 }
 
+/**
+ * Retorna `true` si l'As d'espases (la carta més forta del truc) ja s'ha
+ * jugat en la primera baza de la ronda actual. S'usa per a prohibir que
+ * cap bot diga "A tu!" en aqueix context: una vegada vista la carta més
+ * forta, "A tu!" ja no aporta cap informació útil.
+ */
+export function asEspasesPlayedFirstTrick(round: {
+  tricks: { cards: { card: Card }[] }[];
+}): boolean {
+  const first = round.tricks[0];
+  if (!first) return false;
+  return first.cards.some(
+    (tc) => tc.card.rank === 1 && tc.card.suit === "espases",
+  );
+}
+
 
 export const SUIT_SYMBOL: Record<Suit, string> = {
   oros: "🪙",

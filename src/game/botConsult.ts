@@ -1,6 +1,6 @@
 import type { MatchState, PlayerId } from "./types";
 import { partnerOf, teamOf } from "./types";
-import { cardStrength, playerTotalEnvit, SUITS, RANKS } from "./deck";
+import { cardStrength, playerTotalEnvit, asEspasesPlayedFirstTrick, SUITS, RANKS } from "./deck";
 import type { ChatPhraseId } from "./phrases";
 import type { BotTuning } from "./profileAdaptation";
 import { NEUTRAL_TUNING } from "./profileAdaptation";
@@ -550,6 +550,24 @@ export interface PartnerAnswerContext {
 
 /** El compañero (sea bot o humano) responde según su mano restante. */
 export function partnerAnswerFor(
+  m: MatchState,
+  partner: PlayerId,
+  question: ChatPhraseId,
+  bluffRate: number = 0,
+  _ctx: PartnerAnswerContext = {},
+): ChatPhraseId {
+  const _result = _partnerAnswerForRaw(m, partner, question, bluffRate, _ctx);
+  // Prohibició: si en la primera baza ja s'ha jugat l'As d'espases, cap
+  // bot pot dir "A tu!". Substituïm la frase per "No tinc res", que és
+  // semànticament equivalent (no té res que aporte) i ja forma part del
+  // vocabulari acceptat.
+  if (_result === "a-tu" && asEspasesPlayedFirstTrick(m.round)) {
+    return "no-tinc-res";
+  }
+  return _result;
+}
+
+function _partnerAnswerForRaw(
   m: MatchState,
   partner: PlayerId,
   question: ChatPhraseId,
