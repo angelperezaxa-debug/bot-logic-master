@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Action, MatchState, PlayerId, ShoutKind, partnerOf, nextPlayer, teamOf } from "@/game/types";
 import { applyAction, createMatch, dealRound, legalActions, startNextRound } from "@/game/engine";
 import { botDecide } from "@/game/bot";
-import { bestEnvit, playerTotalEnvit, cardStrength } from "@/game/deck";
+import { bestEnvit, playerTotalEnvit, cardStrength, asEspasesPlayedFirstTrick } from "@/game/deck";
 import { computeShoutDisplay } from "@/game/shoutDisplay";
 import { useShoutFlashes } from "@/game/useShoutFlash";
 import { speakShout } from "@/lib/speech";
