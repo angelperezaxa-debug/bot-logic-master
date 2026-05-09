@@ -2180,7 +2180,11 @@ function choosePlayCard(
           teamOf(tc.player) !== myTeamLast &&
           cardStrength(tc.card) === tableBestStrLast,
       );
-      if (!rivalTies) {
+      // Excepció: si el company guanya amb un 3, el bot NO té prohibit
+      // jugar una carta que supere la del company. En eixe cas, eixim
+      // d'aquesta regla i deixem que la lògica posterior decidisca.
+      const partnerWinsWithThree = tableLeader.card.rank === 3;
+      if (!rivalTies && !partnerWinsWithThree) {
         const matchLowLast = playActions.find((a) => a.cardId === lowest.id);
         if (matchLowLast) return matchLowLast;
       }
