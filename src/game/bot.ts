@@ -2120,6 +2120,9 @@ function choosePlayCard(
   const sorted = [...cards].sort((a, b) => cardStrength(a) - cardStrength(b));
   const lowest = sorted[0]!;
   const highest = sorted[sorted.length - 1]!;
+  const isTopTrucCard = (c: Card) =>
+    (c.rank === 7 && (c.suit === "oros" || c.suit === "espases")) ||
+    (c.rank === 1 && (c.suit === "bastos" || c.suit === "espases"));
 
   // ---- REGLA PRINCIPAL (màxima prioritat): si soc l'ÚLTIM (4t) jugador
   // a tirar en la 1a baza, tinc l'OBLIGACIÓ absoluta de guanyar-la si
@@ -2148,7 +2151,10 @@ function choosePlayCard(
 
   // ---- REGLA PRINCIPAL (sempre): si cap de les meues cartes pot
   // GUANYAR (estrictament > ) la millor carta ja tirada en aquesta
-  // baza, tire OBLIGATÒRIAMENT la més baixa. Aquesta regla té
+  // baza, queda PROHIBIT desperdiciar una top o un 3 que ni guanya ni
+  // emparda. Si el meu equip ja ha guanyat la 1a, i puc empardar la
+  // baza actual, tire la carta més alta que emparda; si no, descarte
+  // la més baixa que no siga top ni un 3 inútil. Aquesta regla té
   // precedència sobre qualsevol altra heurística posterior.
   if (trick.cards.length > 0) {
     const tableBestStrMain = trick.cards.reduce(
@@ -2157,7 +2163,26 @@ function choosePlayCard(
     );
     const canBeatMain = cards.some((c) => cardStrength(c) > tableBestStrMain);
     if (!canBeatMain) {
-      const matchLowMain = playActions.find((a) => a.cardId === lowest.id);
+      const myTeamMain = teamOf(player);
+      const firstTrickMain = r.tricks[0];
+      const teamWonFirstMain =
+        !!firstTrickMain &&
+        firstTrickMain.parda !== true &&
+        firstTrickMain.winner !== undefined &&
+        teamOf(firstTrickMain.winner!) === myTeamMain;
+      if (teamWonFirstMain) {
+        const pardaCards = sorted.filter((c) => cardStrength(c) === tableBestStrMain);
+        const highestParda = pardaCards[pardaCards.length - 1];
+        if (highestParda) {
+          const matchPardaMain = playActions.find((a) => a.cardId === highestParda.id);
+          if (matchPardaMain) return matchPardaMain;
+        }
+      }
+      const safeDiscard = sorted.find(
+        (c) => !isTopTrucCard(c) && !(c.rank === 3 && cardStrength(c) !== tableBestStrMain),
+      );
+      const fallback = safeDiscard ?? lowest;
+      const matchLowMain = playActions.find((a) => a.cardId === fallback.id);
       if (matchLowMain) return matchLowMain;
     }
   }
