@@ -1033,8 +1033,12 @@ async function decideOnlineBotAction(
     isPlayCardTurn(state, actor) &&
     shouldFoldFirstTrickAsTu(state, actor)
   ) {
-    await insertBotChat(roomId, actor, "a-tu");
-    recordBotChat(intents, actor, "a-tu");
+    // Prohibició: si en la primera baza ja s'ha jugat l'As d'espases,
+    // el bot tira la carta baixa però no diu "A tu!".
+    if (!asEspasesPlayedFirstTrick(state.round)) {
+      await insertBotChat(roomId, actor, "a-tu");
+      recordBotChat(intents, actor, "a-tu");
+    }
     const hand = state.round.hands[actor] ?? [];
     const playActs = legalActions(state, actor).filter(
       (a) => a.type === "play-card",
