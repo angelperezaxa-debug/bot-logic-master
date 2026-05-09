@@ -2694,8 +2694,10 @@ function choosePlayCard(
       const partnerWinsTable =
         tableBestPlayer !== null && teamOf(tableBestPlayer.player) === teamOf(player);
 
-      if (partnerWinsTable) {
+      if (partnerWinsTable && tableBestPlayer!.card.rank !== 3) {
         // El company ja guanya: no cal cremar res. Tira la més baixa.
+        // Excepció: si guanya amb un 3, deixem que la lògica posterior
+        // valore si superar-lo amb una carta més forta.
         return { type: "play-card", cardId: lowest.id };
       }
 
