@@ -21,7 +21,7 @@ import {
   shouldFoldFirstTrickAsTu,
   type PartnerAdvice,
 } from "./_shared/botConsult.ts";
-import { cardStrength, playerTotalEnvit } from "./_shared/deck.ts";
+import { cardStrength, playerTotalEnvit, asEspasesPlayedFirstTrick } from "./_shared/deck.ts";
 import type { ChatPhraseId } from "./_shared/phrases.ts";
 import { nextPlayer, partnerOf, teamOf } from "./_shared/types.ts";
 import type { Action, MatchState, PlayerId } from "./_shared/types.ts";
