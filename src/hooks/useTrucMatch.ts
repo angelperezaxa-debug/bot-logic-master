@@ -1928,6 +1928,13 @@ export function useTrucMatch(options: UseTrucMatchOptions = {}) {
         phrase = "a-tu";
       }
 
+      // Prohibició: si en la primera baza ja s'ha jugat l'As d'espases,
+      // cap bot pot dir "A tu!". En aqueix cas, el peu-bot calla en lloc
+      // d'emetre la frase espontània.
+      if (phrase === "a-tu" && asEspasesPlayedFirstTrick(match.round)) {
+        continue;
+      }
+
       const t = window.setTimeout(() => {
         sayRef.current?.(peuBot, phrase);
       }, PEU_SPONTANEOUS_INFO_DELAY_MS);
