@@ -50,6 +50,7 @@ function Ajustes() {
   const { settings, update, ready } = useGameSettings();
   const { deviceId, name, setName, ready: identityReady } = usePlayerIdentity();
   const { password: adminPassword, setPassword: setAdminPassword, ready: adminReady } = useAdminPassword();
+  const [previewEndGame, setPreviewEndGame] = useState<TeamId | null>(null);
   if (!ready || !identityReady || !adminReady) return <Loading />;
 
   const camesOpts = [
