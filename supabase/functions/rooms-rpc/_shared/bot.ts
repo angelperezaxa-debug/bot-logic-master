@@ -3,7 +3,7 @@
 // Run `bun run sync:shared` from the repo root to refresh.
 
 import type { Action, Card, MatchState, PlayerId } from "./types.ts";
-import { legalActions } from "./engine.ts";
+import { isCamaMatchPoint, legalActions } from "./engine.ts";
 import { bestEnvit, buildDeck, cardStrength } from "./deck.ts";
 import { teamOf } from "./types.ts";
 import type { PartnerAdvice } from "./botConsult.ts";
