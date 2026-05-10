@@ -397,7 +397,8 @@ export function legalActions(m: MatchState, player: PlayerId): Action[] {
       !playerHasPlayed0
     ) {
       acts.push({ type: "shout", what: "envit" });
-      acts.push({ type: "shout", what: "falta-envit" });
+      // Match-point de cama: no es pot tirar la falta (val 1 igualment).
+      if (!isCamaMatchPoint(m)) acts.push({ type: "shout", what: "falta-envit" });
     }
     return acts;
   }
