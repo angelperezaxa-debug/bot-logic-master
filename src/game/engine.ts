@@ -771,7 +771,11 @@ function finishRound(m: MatchState, trucWinner: TeamId) {
     // valgués més. La idea és que no es puga "saltar" el truc amb un envit
     // gros quan ja estàs a tocar de la cama.
     let pts = envitPoints;
-    if (m.scores[envitWinner].bones >= m.targetCama - 1) {
+    if (
+      m.scores[envitWinner].bones >= m.targetCama - 1 ||
+      m.scores.nos.bones >= m.targetCama - 1 ||
+      m.scores.ells.bones >= m.targetCama - 1
+    ) {
       pts = Math.min(pts, 1);
     }
     if (apply(envitWinner, pts)) camaClosedBy = envitWinner;
