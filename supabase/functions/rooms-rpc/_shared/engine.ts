@@ -768,19 +768,48 @@ function finishRound(m: MatchState, trucWinner: TeamId) {
     return addPointsToTeam(m.scores, team, pts, m.targetCama);
   };
 
+  // Helper: simula si afegir `pts` a `team` tancaria la cama (bones >= targetCama),
+  // sense mutar el marcador real.
+  const wouldClose = (team: TeamId, pts: number): boolean => {
+    if (pts <= 0) return false;
+    const s = m.scores[team];
+    let remaining = pts;
+    let males = s.males;
+    if (males < m.targetCama) {
+      const room = m.targetCama - males;
+      const add = Math.min(room, remaining);
+      males += add;
+      remaining -= add;
+    }
+    return s.bones + remaining >= m.targetCama;
+  };
+
   let camaClosedBy: TeamId | undefined;
   if (envitWinner && envitPoints > 0) {
-    // Regla "11 buenes": si el guanyador de l'envit ja té 11 bones (a 1 punt
-    // de tancar la cama), els punts d'envit es capen a 1, encara que el cant
-    // valgués més. La idea és que no es puga "saltar" el truc amb un envit
-    // gros quan ja estàs a tocar de la cama.
+    // Regla "11 buenes" / match-point de cama: si algun equip està a 1 punt
+    // de tancar la cama, els punts d'envit es capen a 1 perquè no es puga
+    // "saltar" el truc amb un envit gros quan ja s'està a tocar.
     let pts = envitPoints;
-    if (
+    const matchPoint =
       m.scores[envitWinner].bones >= m.targetCama - 1 ||
       m.scores.nos.bones >= m.targetCama - 1 ||
-      m.scores.ells.bones >= m.targetCama - 1
-    ) {
+      m.scores.ells.bones >= m.targetCama - 1;
+    if (matchPoint) {
       pts = Math.min(pts, 1);
+    }
+    // PREFERÈNCIA D'ENVIT SOBRE TRUC: si tant l'envit (valor original,
+    // sense capar) com el truc tancarien la cama per a equips distints,
+    // l'envit té preferència → no capem l'envit perquè puga tancar de
+    // fet la cama. Així l'equip que ha guanyat l'envit guanya la cama.
+    if (
+      matchPoint &&
+      trucWinner &&
+      trucPoints > 0 &&
+      trucWinner !== envitWinner &&
+      wouldClose(envitWinner, envitPoints) &&
+      wouldClose(trucWinner, trucPoints)
+    ) {
+      pts = envitPoints;
     }
     if (apply(envitWinner, pts)) camaClosedBy = envitWinner;
   }
@@ -788,8 +817,7 @@ function finishRound(m: MatchState, trucWinner: TeamId) {
     if (apply(trucWinner, trucPoints)) camaClosedBy = trucWinner;
   } else if (camaClosedBy && trucPoints > 0 && trucWinner !== camaClosedBy) {
     // Si l'envit ja ha tancat cama, el truc d'aquesta ronda no compta
-    // (la cama ja està decidida). Si fos el mateix equip, tampoc cal
-    // continuar acumulant en aquesta cama tancada.
+    // (la cama ja està decidida).
   }
 
   if (camaClosedBy) {
