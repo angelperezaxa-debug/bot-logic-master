@@ -963,6 +963,8 @@ function doShout(m: MatchState, player: PlayerId, what: ShoutKind): MatchState {
           const pa = (envit as { prevAcceptedLevel?: 0 | 2 | 4 }).prevAcceptedLevel ?? 0;
           prev = pa === 0 ? 1 : pa === 2 ? 2 : 4;
         }
+        // Match-point de cama: l'envit no querit val 1 punt sí o sí.
+        if (isCamaMatchPoint(m)) prev = 1;
         r.envitState = { kind: "rejected", points: prev, wonBy: teamOf(envit.calledBy) };
         r.envitResolved = true;
         if (r.deferredTruc) {
