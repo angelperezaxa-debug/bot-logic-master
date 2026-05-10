@@ -9,6 +9,7 @@ import { DealAnimation } from "@/components/truc/DealAnimation";
 import { CollectAnimation, type CollectedCard } from "@/components/truc/CollectAnimation";
 import { PassDeckAnimation } from "@/components/truc/PassDeckAnimation";
 import { EnvitReveal } from "@/components/truc/EnvitReveal";
+import { EndGameOverlay } from "@/components/truc/EndGameOverlay";
 import { useFreezeSubtreeAnimations } from "@/components/truc/useFreezeSubtreeAnimations";
 
 import { startSequence, logSequence, endSequence } from "@/game/sequenceLog";
@@ -2477,32 +2478,27 @@ export function TrucBoard(props: TrucBoardProps) {
         phraseVars={{ "si-tinc-n": { n: myEnvit } }}
       />
 
-      {gameEnded && (
-        <div className="fixed inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in" style={{ zIndex: TRUC_Z_INDEX.endGameOverlay }}>
-          <div className="wood-surface rounded-2xl border-2 border-primary p-6 max-w-sm w-full text-center card-shadow gold-glow">
-            <Trophy className="w-16 h-16 text-primary mx-auto mb-3" />
-            <h2 className="font-display text-3xl font-black text-gold mb-2">
-              {(() => {
-                const winner = match.jocForaWinner
-                  ?? (match.camesWon.nos > match.camesWon.ells ? "nos" : "ells");
-                return winner === "nos" ? t("match.we") : t("match.them_win");
-              })()}
-            </h2>
-            <p className="text-foreground mb-4">
-              {match.jocForaWinner
-                ? t("match.joc_fora_excl")
-                : t("match.cames_score", { nos: match.camesWon.nos, ells: match.camesWon.ells })}
-            </p>
-            <Button
-              onClick={onNewGame}
-              variant="default"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-bold"
-            >
-              {t("match.new_match")}
-            </Button>
-          </div>
-        </div>
-      )}
+      {gameEnded && (() => {
+        const winnerTeam: TeamId = match.jocForaWinner
+          ?? (match.camesWon.nos > match.camesWon.ells ? "nos" : "ells");
+        const playerNamesBySeat: Record<PlayerId, string> = {
+          [HUMAN]: seatNames?.bottom ?? `Seient ${HUMAN + 1}`,
+          [RIGHT]: seatNames?.right ?? `Seient ${RIGHT + 1}`,
+          [PARTNER]: seatNames?.top ?? `Seient ${PARTNER + 1}`,
+          [LEFT]: seatNames?.left ?? `Seient ${LEFT + 1}`,
+        } as Record<PlayerId, string>;
+        return (
+          <EndGameOverlay
+            open={true}
+            winnerTeam={winnerTeam}
+            playerNamesBySeat={playerNamesBySeat}
+            camesWon={match.camesWon}
+            jocFora={!!match.jocForaWinner}
+            onNewGame={onNewGame}
+            onAbandon={onAbandon}
+          />
+        );
+      })()}
 
       <AlertDialog open={confirmAbandon} onOpenChange={setConfirmAbandon}>
         <AlertDialogContent>

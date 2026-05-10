@@ -25,6 +25,8 @@ import { APP_VERSION } from "@/lib/appVersion";
 import { toast } from "sonner";
 import { AccountLinkSection } from "@/components/AccountLinkSection";
 import { ShareAppButton } from "@/components/ShareAppButton";
+import { EndGameOverlay } from "@/components/truc/EndGameOverlay";
+import type { PlayerId, TeamId } from "@/game/types";
 
 function Loading() {
   return (
@@ -48,6 +50,7 @@ function Ajustes() {
   const { settings, update, ready } = useGameSettings();
   const { deviceId, name, setName, ready: identityReady } = usePlayerIdentity();
   const { password: adminPassword, setPassword: setAdminPassword, ready: adminReady } = useAdminPassword();
+  const [previewEndGame, setPreviewEndGame] = useState<TeamId | null>(null);
   if (!ready || !identityReady || !adminReady) return <Loading />;
 
   const camesOpts = [
@@ -102,6 +105,44 @@ function Ajustes() {
           <h1 className="font-title font-black italic text-gold text-2xl text-center pr-1.5">{t("settings.title")}</h1>
           <p className="mt-0.5 text-[11px] text-muted-foreground">{t("settings.subtitle")}</p>
         </header>
+
+        {/* TEMPORAL: previsualització de la pantalla de fi de partida */}
+        <div className="flex flex-col gap-2 rounded-xl border-2 border-dashed border-gold/60 p-3">
+          <p className="text-xs text-muted-foreground text-center">
+            Previsualitzar pantalla de fi de partida (temporal)
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setPreviewEndGame("nos")}
+            >
+              Guanyem nosaltres
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setPreviewEndGame("ells")}
+            >
+              Guanyen ells
+            </Button>
+          </div>
+        </div>
+        {previewEndGame && (
+          <EndGameOverlay
+            open={true}
+            winnerTeam={previewEndGame}
+            playerNamesBySeat={{
+              0: name || "Tu",
+              1: "Bot dreta",
+              2: "Company",
+              3: "Bot esquerra",
+            } as Record<PlayerId, string>}
+            camesWon={previewEndGame === "nos" ? { nos: 2, ells: 1 } : { nos: 1, ells: 2 }}
+            onNewGame={() => setPreviewEndGame(null)}
+            onAbandon={() => setPreviewEndGame(null)}
+          />
+        )}
 
         <Section title={t("settings.your_name")}>
           <PlayerNameField name={name} onChange={setName} label={t("settings.player_name_label")} />
