@@ -38,6 +38,17 @@ export function teamCamaTotal(s: { males: number; bones: number }): number {
   return Math.min(s.males + s.bones, 24);
 }
 
+/**
+ * "Match point" de la cama: algun equip està a 1 punt de tancar la cama
+ * (té `bones === targetCama - 1`). En aquesta situació l'envit només pot
+ * valdre 1 punt — querit o no querit — perquè és tot el que falta al líder
+ * per tancar la cama. A més, no es pot pujar (renvit / falta-envit).
+ */
+export function isCamaMatchPoint(m: MatchState): boolean {
+  const t = m.targetCama;
+  return m.scores.nos.bones >= t - 1 || m.scores.ells.bones >= t - 1;
+}
+
 /** Suma punts a un equip propagant males → bones, i retorna si ha guanyat la cama. */
 function addPointsToTeam(
   scores: Record<TeamId, { males: number; bones: number }>,
