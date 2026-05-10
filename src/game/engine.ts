@@ -38,6 +38,17 @@ export function teamCamaTotal(s: { males: number; bones: number }): number {
   return Math.min(s.males + s.bones, 24);
 }
 
+/**
+ * "Match point" de la cama: algun equip està a 1 punt de tancar la cama
+ * (té `bones === targetCama - 1`). En aquesta situació l'envit només pot
+ * valdre 1 punt — querit o no querit — perquè és tot el que falta al líder
+ * per tancar la cama. A més, no es pot pujar (renvit / falta-envit).
+ */
+export function isCamaMatchPoint(m: MatchState): boolean {
+  const t = m.targetCama;
+  return m.scores.nos.bones >= t - 1 || m.scores.ells.bones >= t - 1;
+}
+
 /** Suma punts a un equip propagant males → bones, i retorna si ha guanyat la cama. */
 function addPointsToTeam(
   scores: Record<TeamId, { males: number; bones: number }>,
@@ -382,7 +393,8 @@ export function legalActions(m: MatchState, player: PlayerId): Action[] {
       !playerHasPlayed0
     ) {
       acts.push({ type: "shout", what: "envit" });
-      acts.push({ type: "shout", what: "falta-envit" });
+      // Match-point de cama: no es pot tirar la falta (val 1 igualment).
+      if (!isCamaMatchPoint(m)) acts.push({ type: "shout", what: "falta-envit" });
     }
     return acts;
   }
@@ -392,7 +404,14 @@ export function legalActions(m: MatchState, player: PlayerId): Action[] {
     teamOf(player) === r.envitState.awaitingTeam &&
     !(r.envitState.rejectedBy ?? []).includes(player)
   ) {
-    return responseActions(r.envitState.level, "envit");
+    let acts = responseActions(r.envitState.level, "envit");
+    // Match-point de cama: l'envit val 1 punt sí o sí; no es pot pujar.
+    if (isCamaMatchPoint(m)) {
+      acts = acts.filter(
+        (a) => !(a.type === "shout" && (a.what === "renvit" || a.what === "falta-envit")),
+      );
+    }
+    return acts;
   }
 
   if (r.turn !== player) {
@@ -457,7 +476,8 @@ export function legalActions(m: MatchState, player: PlayerId): Action[] {
   if (envitAllowed) {
     if (r.envitState.kind === "none") {
       actions.push({ type: "shout", what: "envit" });
-      actions.push({ type: "shout", what: "falta-envit" });
+      // Match-point de cama: no es pot tirar la falta (val 1 igualment).
+      if (!isCamaMatchPoint(m)) actions.push({ type: "shout", what: "falta-envit" });
     }
   }
 
@@ -751,7 +771,11 @@ function finishRound(m: MatchState, trucWinner: TeamId) {
     // valgués més. La idea és que no es puga "saltar" el truc amb un envit
     // gros quan ja estàs a tocar de la cama.
     let pts = envitPoints;
-    if (m.scores[envitWinner].bones >= m.targetCama - 1) {
+    if (
+      m.scores[envitWinner].bones >= m.targetCama - 1 ||
+      m.scores.nos.bones >= m.targetCama - 1 ||
+      m.scores.ells.bones >= m.targetCama - 1
+    ) {
       pts = Math.min(pts, 1);
     }
     if (apply(envitWinner, pts)) camaClosedBy = envitWinner;
@@ -889,6 +913,8 @@ function doShout(m: MatchState, player: PlayerId, what: ShoutKind): MatchState {
         } else {
           points = level;
         }
+        // Match-point de cama: l'envit val 1 punt sí o sí.
+        if (isCamaMatchPoint(m)) points = 1;
         r.envitState = { kind: "accepted", points };
         r.envitResolved = true;
         if (r.deferredTruc) {
@@ -937,6 +963,8 @@ function doShout(m: MatchState, player: PlayerId, what: ShoutKind): MatchState {
           const pa = (envit as { prevAcceptedLevel?: 0 | 2 | 4 }).prevAcceptedLevel ?? 0;
           prev = pa === 0 ? 1 : pa === 2 ? 2 : 4;
         }
+        // Match-point de cama: l'envit no querit val 1 punt sí o sí.
+        if (isCamaMatchPoint(m)) prev = 1;
         r.envitState = { kind: "rejected", points: prev, wonBy: teamOf(envit.calledBy) };
         r.envitResolved = true;
         if (r.deferredTruc) {

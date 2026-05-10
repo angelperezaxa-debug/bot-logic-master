@@ -3,7 +3,7 @@
 // Run `bun run sync:shared` from the repo root to refresh.
 
 import type { Action, Card, MatchState, PlayerId } from "./types.ts";
-import { legalActions } from "./engine.ts";
+import { isCamaMatchPoint, legalActions } from "./engine.ts";
 import { bestEnvit, buildDeck, cardStrength } from "./deck.ts";
 import { teamOf } from "./types.ts";
 import type { PartnerAdvice } from "./botConsult.ts";
@@ -312,6 +312,14 @@ function botDecideInner(
   const myEnvit = bestEnvit(hand);
 
   if (r.envitState.kind === "pending" && teamOf(player) === r.envitState.awaitingTeam) {
+    // REGLA PRINCIPAL: si la cama està a "match-point" (algun equip a 1
+    // punt de tancar la cama), l'envit val 1 punt sí o sí — querit o no
+    // querit. Acceptar (vull) és sempre l'opció dominant: si guanyem
+    // l'envit ens emportem 1; si el rebutgem, li regalem 1 al rival.
+    if (isCamaMatchPoint(m)) {
+      const vull = actions.find((a) => a.type === "shout" && a.what === "vull");
+      if (vull) return vull;
+    }
     const isManoMe = r.mano === player;
     const trucStrength = estimateTrucStrength(hand);
     return decideEnvitResponse(actions, myEnvit, r.envitState.level, isManoMe, trucStrength, player, tuning, bluffRate, m, partnerAdvice);
