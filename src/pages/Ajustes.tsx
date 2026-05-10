@@ -25,6 +25,8 @@ import { APP_VERSION } from "@/lib/appVersion";
 import { toast } from "sonner";
 import { AccountLinkSection } from "@/components/AccountLinkSection";
 import { ShareAppButton } from "@/components/ShareAppButton";
+import { EndGameOverlay } from "@/components/truc/EndGameOverlay";
+import type { PlayerId, TeamId } from "@/game/types";
 
 function Loading() {
   return (
