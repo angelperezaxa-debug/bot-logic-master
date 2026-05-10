@@ -403,7 +403,14 @@ export function legalActions(m: MatchState, player: PlayerId): Action[] {
     teamOf(player) === r.envitState.awaitingTeam &&
     !(r.envitState.rejectedBy ?? []).includes(player)
   ) {
-    return responseActions(r.envitState.level, "envit");
+    let acts = responseActions(r.envitState.level, "envit");
+    // Match-point de cama: l'envit val 1 punt sí o sí; no es pot pujar.
+    if (isCamaMatchPoint(m)) {
+      acts = acts.filter(
+        (a) => !(a.type === "shout" && (a.what === "renvit" || a.what === "falta-envit")),
+      );
+    }
+    return acts;
   }
 
   if (r.turn !== player) {
