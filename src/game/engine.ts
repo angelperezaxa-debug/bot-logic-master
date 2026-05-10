@@ -909,6 +909,8 @@ function doShout(m: MatchState, player: PlayerId, what: ShoutKind): MatchState {
         } else {
           points = level;
         }
+        // Match-point de cama: l'envit val 1 punt sí o sí.
+        if (isCamaMatchPoint(m)) points = 1;
         r.envitState = { kind: "accepted", points };
         r.envitResolved = true;
         if (r.deferredTruc) {
