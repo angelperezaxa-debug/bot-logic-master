@@ -9,6 +9,7 @@ import { DealAnimation } from "@/components/truc/DealAnimation";
 import { CollectAnimation, type CollectedCard } from "@/components/truc/CollectAnimation";
 import { PassDeckAnimation } from "@/components/truc/PassDeckAnimation";
 import { EnvitReveal } from "@/components/truc/EnvitReveal";
+import { EndGameOverlay } from "@/components/truc/EndGameOverlay";
 import { useFreezeSubtreeAnimations } from "@/components/truc/useFreezeSubtreeAnimations";
 
 import { startSequence, logSequence, endSequence } from "@/game/sequenceLog";
